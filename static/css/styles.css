@@ -1,0 +1,42 @@
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    background-color: #f0f0f0;
+    margin: 0;
+    padding: 0;
+}
+
+.canvas-container {
+    position: relative; /* Ensure container is relative for absolute positioning of children */
+    margin: 20px auto;
+    width: 800px;
+    height: 600px;
+    background-color: #ffffff;
+    border: 1px solid #ccc;
+    box-shadow: 2px 2px 12px rgba(0,0,0,0.1);
+}
+
+#doodleCanvas {
+    display: block;
+    margin: 0 auto;
+    border: 1px solid #000;
+}
+
+.toolbar {
+    margin-top: 20px;
+}
+
+button {
+    margin: 5px;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+input[type="text"] {
+    position: absolute;
+    font-size: 20px;
+    z-index: 1000; /* Ensure the input field is above the canvas */
+    width: 150px; /* Set width for the input field */
+    border: 1px solid #ccc;
+}

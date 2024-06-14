@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Digital Doodles - Main Screen</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <h1>Main Screen</h1>
+    <div id="doodleDisplay">
+        {% for doodle_file in doodle_files %}
+            <img src="{{ url_for('static', filename='doodles/' + doodle_file) }}" alt="Doodle">
+        {% endfor %}
+    </div>
+
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+    <script>
+        const socket = io();
+        const doodleDisplay = document.getElementById('doodleDisplay');
+
+        socket.on('new_doodle', function(data) {
+            const img = new Image();
+            img.src = data.image;
+            doodleDisplay.appendChild(img);
+        });
+    </script>
+</body>
+</html>

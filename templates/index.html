@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Digital Doodles</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <h1>Digital Doodles</h1>
+    <div class="canvas-container">
+        <canvas id="doodleCanvas" width="800" height="600"></canvas>
+    </div>
+
+    <div class="toolbar">
+        <button onclick="clearCanvas()">Clear</button>
+        <button onclick="addText()">Add Text</button>
+        <button onclick="saveDoodle()">Save</button>
+    </div>
+    
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+    <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
+</body>
+</html>
