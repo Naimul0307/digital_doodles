@@ -4,40 +4,80 @@ const ctx = canvas.getContext('2d');
 let drawing = false;
 let inputField = null;
 let isTyping = false;
+let draggingText = false;
+let draggedText = null;
 
-canvas.addEventListener('mousedown', startDrawing);
-canvas.addEventListener('mouseup', stopDrawing);
-canvas.addEventListener('mousemove', draw);
+// Arrays to store all drawing paths and text elements
+let drawingPaths = [];
+let currentPath = [];
+let textElements = [];
 
-canvas.addEventListener('touchstart', startDrawing);
-canvas.addEventListener('touchend', stopDrawing);
-canvas.addEventListener('touchmove', drawTouch);
+// Add event listeners for mouse and touch events
+canvas.addEventListener('mousedown', handleMouseDown);
+canvas.addEventListener('mouseup', handleMouseUp);
+canvas.addEventListener('mousemove', handleMouseMove);
 
-function startDrawing(event) {
-    if (isTyping) return;
-    drawing = true;
-    ctx.beginPath();
+canvas.addEventListener('touchstart', handleTouchStart);
+canvas.addEventListener('touchend', handleTouchEnd);
+canvas.addEventListener('touchmove', handleTouchMove);
+
+function handleMouseDown(event) {
     const { offsetX, offsetY } = getEventCoords(event);
-    ctx.moveTo(offsetX, offsetY);
+    if (isTyping) return;
+    if (startDragging(offsetX, offsetY)) return;
+    startDrawing(offsetX, offsetY);
+}
+
+function handleMouseUp() {
+    stopDrawing();
+    stopDragging();
+}
+
+function handleMouseMove(event) {
+    const { offsetX, offsetY } = getEventCoords(event);
+    if (drawing) {
+        drawLine(offsetX, offsetY);
+    } else if (draggingText) {
+        dragText(offsetX, offsetY);
+    }
+}
+
+function handleTouchStart(event) {
+    const { offsetX, offsetY } = getEventCoords(event.touches[0]);
+    if (isTyping) return;
+    if (startDragging(offsetX, offsetY)) return;
+    startDrawing(offsetX, offsetY);
+}
+
+function handleTouchEnd() {
+    stopDrawing();
+    stopDragging();
+}
+
+function handleTouchMove(event) {
+    event.preventDefault();
+    const { offsetX, offsetY } = getEventCoords(event.touches[0]);
+    if (drawing) {
+        drawLine(offsetX, offsetY);
+    } else if (draggingText) {
+        dragText(offsetX, offsetY);
+    }
+}
+
+function startDrawing(x, y) {
+    drawing = true;
+    currentPath = [{ x, y }];
+    ctx.beginPath();
+    ctx.moveTo(x, y);
 }
 
 function stopDrawing() {
-    if (isTyping) return;
+    if (drawing) {
+        drawingPaths.push([...currentPath]);
+        currentPath = [];
+    }
     drawing = false;
     ctx.beginPath();
-}
-
-function draw(event) {
-    if (!drawing || isTyping) return;
-    const { offsetX, offsetY } = getEventCoords(event);
-    drawLine(offsetX, offsetY);
-}
-
-function drawTouch(event) {
-    event.preventDefault();
-    if (!drawing || isTyping) return;
-    const { offsetX, offsetY } = getEventCoords(event.touches[0]);
-    drawLine(offsetX, offsetY);
 }
 
 function drawLine(x, y) {
@@ -48,10 +88,15 @@ function drawLine(x, y) {
     ctx.stroke();
     ctx.beginPath();
     ctx.moveTo(x, y);
+    currentPath.push({ x, y });
 }
 
 function clearCanvas() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Clear the drawing paths and text elements arrays
+    drawingPaths = [];
+    textElements = [];
 
     // Remove the input field if it exists
     if (inputField) {
@@ -82,6 +127,7 @@ function createInputField(event) {
     
     inputField = document.createElement('input');
     inputField.type = 'text';
+    inputField.style.position = 'absolute';
     inputField.style.left = `${offsetX}px`;
     inputField.style.top = `${offsetY}px`;
 
@@ -103,9 +149,9 @@ function createInputField(event) {
     inputField.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
             const text = inputField.value;
-            ctx.font = '20px Arial';
-            ctx.fillStyle = '#000000';
-            ctx.fillText(text, parseInt(inputField.style.left), parseInt(inputField.style.top) + 20);
+            const textX = parseInt(inputField.style.left);
+            const textY = parseInt(inputField.style.top) + 20;
+            addTextElement(text, textX, textY);
             document.querySelector('.canvas-container').removeChild(inputField);
             inputField = null;
             isTyping = false;
@@ -115,10 +161,66 @@ function createInputField(event) {
     });
 }
 
+function addTextElement(text, x, y) {
+    textElements.push({ text, x, y });
+    redrawCanvas();
+}
+
+function redrawCanvas() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Redraw all drawing paths
+    drawingPaths.forEach(path => {
+        ctx.beginPath();
+        ctx.moveTo(path[0].x, path[0].y);
+        path.forEach(point => {
+            ctx.lineTo(point.x, point.y);
+        });
+        ctx.stroke();
+    });
+
+    // Redraw all text elements
+    textElements.forEach(textElement => {
+        ctx.font = '20px Arial';
+        ctx.fillStyle = '#000000';
+        ctx.fillText(textElement.text, textElement.x, textElement.y);
+    });
+}
+
+function startDragging(x, y) {
+    let startDragging = false;
+    textElements.forEach(textElement => {
+        if (isInsideText(textElement, x, y)) {
+            draggingText = true;
+            draggedText = textElement;
+            draggedText.offsetX = x - textElement.x;
+            draggedText.offsetY = y - textElement.y;
+            startDragging = true;
+        }
+    });
+    return startDragging;
+}
+
+function dragText(x, y) {
+    if (!draggingText) return;
+    draggedText.x = x - draggedText.offsetX;
+    draggedText.y = y - draggedText.offsetY;
+    redrawCanvas();
+}
+
+function stopDragging() {
+    draggingText = false;
+    draggedText = null;
+}
+
 function getEventCoords(event) {
     const canvasRect = canvas.getBoundingClientRect();
     return {
         offsetX: event.clientX - canvasRect.left,
         offsetY: event.clientY - canvasRect.top
     };
+}
+
+function isInsideText(textElement, x, y) {
+    return x >= textElement.x && x <= textElement.x + ctx.measureText(textElement.text).width && y >= textElement.y - 20 && y <= textElement.y;
 }
