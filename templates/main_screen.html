@@ -2,12 +2,72 @@
 <html>
 <head>
     <title>Digital Doodles - Main Screen</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/styles.css') }}">
+    <style>
+        /* Additional custom styles */
+        body, html {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: url("{{ url_for('static', filename='background image/main.jpg') }}") no-repeat center center fixed;
+            background-size: cover;
+        }
+
+        h1 {
+            margin-top: 20px;
+            color: brown; /* White text color */
+        }
+
+        #doodleDisplay {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            max-width: 100%;
+            padding: 20px;
+        }
+
+        #doodleDisplay img {
+            width: calc(100% / 4 - 40px);
+            height: auto;
+            margin: 10px;
+            box-shadow: 0 0 10px rgba(7, 6, 6, 0.1);
+            cursor: pointer; /* Add pointer cursor */
+            transition: transform 0.2s ease-in-out; /* Smooth scale animation */
+            transform: translateY(20px);
+            background-color: rgba(193, 255, 252, 0.5);
+            border-radius: 10%;
+        }
+
+        #doodleDisplay img:hover {
+            transform: scale(1.05); /* Scale up on hover */
+        }
+
+        .visible {
+            animation: fadeIn 0.5s ease-out forwards; /* Apply fadeIn animation when visible */
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
 </head>
 <body>
-    <h1>Main Screen</h1>
-    <div id="doodleDisplay">
-        <!-- Placeholder for displaying latest doodle images -->
+    <div class="container-fluid">
+        <h1 class="mt-4 text-center">Main Screen</h1>
+        
+        <div id="doodleDisplay" class="row justify-content-center">
+            <!-- Placeholder for displaying latest doodle images -->
+        </div>
     </div>
 
     <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
@@ -32,10 +92,21 @@
             const img = new Image();
             img.src = data.image;
             img.alt = 'Doodle';
+
+            // Add click event listener to each image for further interaction
+            img.addEventListener('click', function() {
+                // Example: Open image in a new window
+                window.open(data.image, '_blank');
+            });
+
+            // Insert the new image at the beginning
             doodleDisplay.insertBefore(img, doodleDisplay.firstChild);
 
-            // Remove excess images if more than 10
-            const maxImages = 10;
+            // Apply animation when new image is added
+            img.classList.add('visible');
+
+            // Remove excess images if more than 12
+            const maxImages = 12;
             if (doodleDisplay.children.length > maxImages) {
                 doodleDisplay.removeChild(doodleDisplay.lastChild);
             }
@@ -52,11 +123,27 @@
                 })
                 .then(data => {
                     console.log('Initial doodles:', data.doodles);
-                    data.doodles.slice(0, 10).forEach(doodle => {
+                    data.doodles.slice(0, 12).forEach(doodle => {
                         const img = new Image();
                         img.src = doodle;
                         img.alt = 'Doodle';
+                        img.classList.add('animated-image');
+
                         doodleDisplay.appendChild(img);
+                    });
+                    
+                    // Apply IntersectionObserver to trigger animation when images are in viewport
+                    const observer = new IntersectionObserver(entries => {
+                        entries.forEach(entry => {
+                            if (entry.isIntersecting) {
+                                entry.target.classList.add('visible');
+                                observer.unobserve(entry.target);
+                            }
+                        });
+                    }, { threshold: 0.1 });
+
+                    document.querySelectorAll('#doodleDisplay img').forEach(img => {
+                        observer.observe(img);
                     });
                 })
                 .catch(error => {

@@ -1,21 +1,110 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
     <title>Digital Doodles</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/styles.css') }}">
+    <style>
+        /* Custom styles for the page */
+        body {
+            background: url("{{ url_for('static', filename='background image/main.jpg') }}") no-repeat center center fixed;
+            background-size: cover;
+            height: 100vh; /* Ensure full viewport height */
+            overflow: hidden; /* Prevent scrolling */
+        }
+
+        .canvas-container {
+            position: relative;
+            margin-top: 10px; /* Adjust margin as needed */
+            animation: fadeInUp 0.5s ease-in-out; /* Example animation for canvas container */
+        }
+
+        .toolbar {
+            position: fixed; /* Adjust position as needed */
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000; /* Ensure toolbar is above canvas */
+            background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent white background */
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            animation: slideInUp 0.5s ease-in-out; /* Example animation for toolbar */
+        }
+
+        /* Button hover animation */
+        .btn {
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .btn:hover {
+            transform: scale(1.1);
+        }
+
+        /* Floating animation for buttons */
+        @keyframes floatAnimation {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .btn-float {
+            animation: floatAnimation 3s ease-in-out infinite; /* Adjust duration and animation properties */
+        }
+
+        /* Custom animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Custom color for h1 */
+        h1 {
+            color: #ffffff; /* White color */
+        }
+    </style>
 </head>
 <body>
-    <h1>Digital Doodles</h1>
-    <div class="canvas-container">
-        <canvas id="doodleCanvas" width="800" height="600"></canvas>
+    <div class="section">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12 text-center">
+                    <h1 class="mt-5">Digital Doodles</h1>
+                </div>
+            </div>
+        </div>
+    
+        <div class="canvas-container">
+            <canvas id="doodleCanvas" width="800" height="600"></canvas>
+        </div>
+    
+        <div class="toolbar">
+            <button class="btn btn-primary mr-2 btn-float" onclick="clearCanvas()">Clear</button>
+            <button class="btn btn-success mr-2 btn-float" onclick="addText()">Add Text</button>
+            <button class="btn btn-danger btn-float" onclick="saveDoodle()">Save</button>
+        </div>    
     </div>
 
-    <div class="toolbar">
-        <button onclick="clearCanvas()">Clear</button>
-        <button onclick="addText()">Add Text</button>
-        <button onclick="saveDoodle()">Save</button>
-    </div>
-    
     <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
     <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
 </body>
