@@ -49,9 +49,14 @@ function handleTouchStart(event) {
     startDrawing(offsetX, offsetY);
 }
 
-function handleTouchEnd() {
+function handleTouchEnd(event) {
     stopDrawing();
     stopDragging();
+
+    // If typing mode is on, create the input field on touch end
+    if (isTyping) {
+        createInputField(event.changedTouches[0]);
+    }
 }
 
 function handleTouchMove(event) {
