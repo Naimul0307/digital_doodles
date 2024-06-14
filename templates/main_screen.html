@@ -7,9 +7,7 @@
 <body>
     <h1>Main Screen</h1>
     <div id="doodleDisplay">
-        {% for doodle_file in doodle_files %}
-            <img src="{{ url_for('static', filename='doodles/' + doodle_file) }}" alt="Doodle">
-        {% endfor %}
+        <!-- Placeholder for displaying latest doodle images -->
     </div>
 
     <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
@@ -17,11 +15,54 @@
         const socket = io();
         const doodleDisplay = document.getElementById('doodleDisplay');
 
+        socket.on('connect', function() {
+            console.log('Socket connected');
+        });
+
+        socket.on('disconnect', function() {
+            console.log('Socket disconnected');
+        });
+
+        socket.on('connect_error', function(error) {
+            console.error('Socket connection error:', error);
+        });
+
         socket.on('new_doodle', function(data) {
+            console.log('New doodle received:', data);
             const img = new Image();
             img.src = data.image;
-            doodleDisplay.appendChild(img);
+            img.alt = 'Doodle';
+            doodleDisplay.insertBefore(img, doodleDisplay.firstChild);
+
+            // Remove excess images if more than 10
+            const maxImages = 10;
+            if (doodleDisplay.children.length > maxImages) {
+                doodleDisplay.removeChild(doodleDisplay.lastChild);
+            }
         });
+
+        // Fetch initial doodles on page load
+        window.onload = function() {
+            fetch('/get_latest_doodles')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch doodles');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Initial doodles:', data.doodles);
+                    data.doodles.slice(0, 10).forEach(doodle => {
+                        const img = new Image();
+                        img.src = doodle;
+                        img.alt = 'Doodle';
+                        doodleDisplay.appendChild(img);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching doodles:', error);
+                });
+        };
     </script>
 </body>
 </html>
