@@ -24,9 +24,9 @@
         <img id="fullScreenImage" src="" alt="Full Screen Image">
     </div>
 
-    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+    <!-- <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script> -->
+    <script src="{{ url_for('static', filename='js/socket.io.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
-    <!-- <script src="{{ url_for('static', filename='js/socket.io.main.js') }}"></script> -->
 </body>
 </html>
