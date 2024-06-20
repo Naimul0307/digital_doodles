@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Digital Doodles</title>
+    <!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"> -->
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+</head>
+<body>
+    <div class="section">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12 text-center">
+                    <h1 class="mt-5">Digital Doodles</h1>
+                </div>
+            </div>
+        </div>
+    
+        <div class="canvas-container">
+            <canvas id="doodleCanvas" height="600" width="600"> </canvas>
+        </div>
+    
+        <div class="toolbar">
+            <button class="btn btn-primary mr-2 btn-float" onclick="clearCanvas()">Clear</button>
+            <button class="btn btn-success mr-2 btn-float" onclick="addText()">Add Text</button>
+            <button class="btn btn-danger btn-float" onclick="saveDoodle()">Save</button>
+        </div>    
+    </div>
+
+    <!-- <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script> -->
+    <script src="{{ url_for('static', filename='js/socket.io.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+</body>
+</html>

@@ -49,4 +49,4 @@ def get_latest_doodles():
 
 if __name__ == '__main__':
     local_ip = os.getenv('LOCAL_IP', '192.168.0.154')  # Replace '192.168.0.154' with your local IP address
-    socketio.run(app, host=local_ip, port=5000, debug=True)
+    socketio.run(app, host=local_ip, port=5000, debug=False)

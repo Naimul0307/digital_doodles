@@ -186,7 +186,7 @@ function redrawCanvas() {
 
     // Redraw all text elements
     textElements.forEach(textElement => {
-        ctx.font = '20px Arial';
+        ctx.font = '40px Arial';
         ctx.fillStyle = '#000000';
         ctx.fillText(textElement.text, textElement.x, textElement.y);
     });
@@ -229,3 +229,42 @@ function getEventCoords(event) {
 function isInsideText(textElement, x, y) {
     return x >= textElement.x && x <= textElement.x + ctx.measureText(textElement.text).width && y >= textElement.y - 20 && y <= textElement.y;
 }
+
+
+function detectZoomLevel() {
+    var ratio = 0,
+        screen = window.screen,
+        ua = navigator.userAgent.toLowerCase();
+
+    if (~ua.indexOf('firefox')) {
+        if (window.devicePixelRatio !== undefined) {
+            ratio = window.devicePixelRatio;
+        }
+    } else if (~ua.indexOf('msie') || ~ua.indexOf('trident')) {
+        if (screen.deviceXDPI && screen.logicalXDPI) {
+            ratio = screen.deviceXDPI / screen.logicalXDPI;
+        }
+    } else if (window.outerWidth !== undefined && window.innerWidth !== undefined) {
+        ratio = window.outerWidth / window.innerWidth;
+    }
+
+    return ratio;
+}
+
+// Example usage to adjust layout based on zoom level
+function adjustLayoutBasedOnZoom() {
+    var zoomLevel = detectZoomLevel();
+    if (zoomLevel < 1) {
+        // Adjust CSS or apply classes for zoomed out state
+        document.body.classList.add('zoomed-out');
+    } else {
+        // Adjust CSS or apply classes for default or zoomed in state
+        document.body.classList.remove('zoomed-out');
+    }
+}
+
+// Execute the adjustment on page load
+adjustLayoutBasedOnZoom();
+
+// Listen for window resize events to re-adjust on zoom change
+window.addEventListener('resize', adjustLayoutBasedOnZoom);
