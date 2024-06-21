@@ -34,7 +34,7 @@ def handle_doodle_submission(data):
         doodle_files.insert(0, f'/static/doodles/{filename}')
         
         # Trim the list to 10 items
-        doodle_files = doodle_files[:10]
+        doodle_files = doodle_files[:12]
         
         # Broadcast the doodle to all connected clients
         emit('new_doodle', {'image': f'/static/doodles/{filename}'}, broadcast=True)
@@ -45,8 +45,9 @@ def handle_doodle_submission(data):
 @app.route('/get_latest_doodles')
 def get_latest_doodles():
     global doodle_files  # Ensure doodle_files is treated as a global variable
-    return jsonify({'doodles': doodle_files})
+    max_images = int(os.getenv('MAX_IMAGES', 8))  # Default to 8 if not set in environment
+    return jsonify({'doodles': doodle_files[:max_images]})
 
 if __name__ == '__main__':
     local_ip = os.getenv('LOCAL_IP', '192.168.0.154')  # Replace '192.168.0.154' with your local IP address
-    socketio.run(app, host=local_ip, port=5000, debug=False)
+    socketio.run(app, host=local_ip, port=5000, debug=True)

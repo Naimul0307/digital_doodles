@@ -33,15 +33,22 @@ window.onload = function() {
             })
             .then(data => {
                 console.log('Initial doodles:', data.doodles);
-                data.doodles.slice(0, 8).forEach((doodle, index) => {
-                    addNewDoodle(doodle, index * 0.5);
-                });
-
-                observeVisibleImages(); // Start observing visible images
+                displayDoodles(data.doodles);
             })
             .catch(error => {
                 console.error('Error fetching doodles:', error);
             });
+    }
+
+    function displayDoodles(doodles) {
+        // Clear existing doodles
+        doodleDisplay.innerHTML = '';
+        
+        doodles.forEach((doodle, index) => {
+            addNewDoodle(doodle, index * 0.5);
+        });
+
+        observeVisibleImages(); // Start observing visible images
     }
 
     function addNewDoodle(imageSrc, delay = 0) {
@@ -55,6 +62,12 @@ window.onload = function() {
 
         // Apply IntersectionObserver to the new image
         observeSingleImage(img);
+
+        // Remove excess images if exceeding maxImages
+        const maxImages = parseInt(document.body.dataset.maxImages, 8) || 8;
+        while (doodleDisplay.children.length > maxImages) {
+            doodleDisplay.removeChild(doodleDisplay.lastChild);
+        }
     }
 
     function observeVisibleImages() {
