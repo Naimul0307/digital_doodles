@@ -3,20 +3,29 @@ from flask_socketio import SocketIO, emit
 import os
 from datetime import datetime
 import base64
+import json  # Import JSON module
 
 app = Flask(__name__)
 socketio = SocketIO(app)
+
+# Function to load configuration from config.json
+def load_config():
+    with open('config.json', 'r') as f:
+        return json.load(f)
+
+# Initialize configuration
+config = load_config()
 
 # List to store doodles
 doodle_files = []
 
 @app.route('/')
 def index():
-    return render_template('index.html')
-
-@app.route('/main_screen')
-def main_screen():
     return render_template('main_screen.html')
+
+@app.route('/index')
+def main_screen():
+    return render_template('index.html')
 
 @socketio.on('submit_doodle')
 def handle_doodle_submission(data):
@@ -49,5 +58,9 @@ def get_latest_doodles():
     return jsonify({'doodles': doodle_files[:max_images]})
 
 if __name__ == '__main__':
-    local_ip = os.getenv('LOCAL_IP', '192.168.0.154')  # Replace '192.168.0.154' with your local IP address
-    socketio.run(app, host=local_ip, port=5000, debug=True)
+    # Read IP and PORT from config.json
+    config = load_config()  # Reload config to get latest changes
+    local_ip = config.get('IP', '127.0.0.1')
+    port_number = int(config.get('PORT', 5001))  # Change to a different default port number if needed
+    
+    socketio.run(app, host=local_ip, port=port_number, debug=True)
